@@ -36,8 +36,8 @@ PopBack - извлекает элемент с конца списка, если
 Потребление памяти O(n)
 
 
-id - 72141464
-https://contest.yandex.ru/contest/22781/run-report/72141464/
+id - 79553249
+https://contest.yandex.ru/contest/22781/run-report/79553249/
 */
 
 var (
