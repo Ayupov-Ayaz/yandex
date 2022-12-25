@@ -19,9 +19,3 @@ func InsertSort(arr []int) {
 func getArr() []int {
 	return []int{10, 9, 7, 5, 4, 2, 1}
 }
-func main() {
-	fmt.Println("insert sort")
-	InsertSort(getArr())
-	fmt.Println("bubble sort")
-	BubbleSort(getArr())
-}
