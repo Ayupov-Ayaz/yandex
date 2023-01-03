@@ -33,7 +33,7 @@ func sortByLen(str []string) {
 		wordJ := str[j]
 		equal := true
 
-		if len(wordI) < len(wordJ) {
+		if len(wordI) <= len(wordJ) {
 			for k := 0; k < len(wordI); k++ {
 				if wordI[k] > wordJ[k] {
 					return true
