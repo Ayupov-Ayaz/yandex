@@ -32,31 +32,24 @@ func QuickSort(arr []int) []int {
 	return resp
 }
 
-func inPlaceQuickSort(arr []int, left, right int) {
-	pivot := arr[len(arr)/2]
+func getPivotIndex(arr []int, left, right int) int {
+	pivotIndex := left - 1
+	pivotElement := arr[right]
 
-	for left < right {
-		ls := true
-		rs := true
-
-		if arr[left] < pivot {
-			left++
-			ls = false
-		}
-
-		if arr[right] > pivot {
-			right--
-			rs = false
-		}
-
-		if ls && rs {
-			arr[left], arr[right] = arr[right], arr[left]
-			left++
-			right--
+	for i := left; i < right; i++ {
+		if arr[i] < pivotElement {
+			pivotIndex++
+			arr[i], arr[pivotIndex] = arr[pivotIndex], arr[i]
 		}
 	}
+	arr[pivotIndex+1], arr[right] = arr[right], arr[pivotIndex+1]
+	return pivotIndex + 1
 }
 
-func InPlaceQuickSort(arr []int) {
-	inPlaceQuickSort(arr, 0, len(arr)-1)
+func InPlaceQuickSort(arr []int, left, right int) {
+	if left < right {
+		pivotIndex := getPivotIndex(arr, left, right)
+		InPlaceQuickSort(arr, left, pivotIndex-1)
+		InPlaceQuickSort(arr, pivotIndex+1, right)
+	}
 }

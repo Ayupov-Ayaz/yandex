@@ -51,7 +51,7 @@ func TestInPlaceQuickSort(t *testing.T) {
 				input[i], _ = strconv.Atoi(str[i])
 			}
 
-			InPlaceQuickSort(input)
+			InPlaceQuickSort(input, 0, len(input)-1)
 			require.Equal(t, tt.exp, input)
 		})
 	}
