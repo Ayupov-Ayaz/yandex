@@ -19,27 +19,24 @@ import (
 // -- Принцип работы --
 // 1. запускаем рекурсивную функцию, базовым случаем которого является left >= right;
 //    начальные параметры left=0; right=len(members)-1
-// 2. ищем опорный элемент попутно сортируя массив
-// 2.1 для изначального опорного элемента берем последний элемент из переданной границы,
-//		то есть элемент members[right]
-// 2.2 запускаем цикл по всем элементам кроме последнего (опорного);
-//		заводим переменную lastIndex - который будет указывать на последний переставленный влево индекс элемента
-// 2.3 проверяем что текущий элемент имеет значения лучше, чем опорный
-// 2.3.3 если это так, тогда мы инкрементируем lastIndex
-//		и меняем местами тот элемент который указывает на lastIndex и текущий (то есть i)
-// 2.3.4 пройдя циклом по всем элементам мы переставим все элементы которые лучше опорного влевую сторону и будем знать,
-// 		что lastIndex указывает на последний такой элемент, который мы переставляли
-//		тут мы можем смело переставить наш опорный элемент сразу после lastIndex (инкрементируем lastIndex)
-//		а тот элемент который находится в данный момент по индексу lastIndex пока перествим в конец
-// 2.3.5 возвращаем наш lastIndex - это наш опорный элемент на текущей итерации
-// 3. запускаем нашу фукнкцию сортировки для левой половинки от опорного элемента
-// 4. запускаем нашу функцию сортировки для правой половинки от опорного элемента
-// 		в пунктах 3 и 4 у нас будет выполняться рекурсивный вызов функции сортировки, на уменьшенных участках массива
-// 		для более глубокой сортировки
+// 2. ищем опорный элемент
+// 	 	для его поиска мы перем элменты по индексу left, right и (left+right)/2
+//		и находим между ними среднее число, которое при сортировки была бы между двумя числами
+// 3. переносим все элементы меньше опорного влевую сторону
+// 4. перемещаем сам опорный элемент на новую позицию (сразу после чисел, которые являются меньше опорного)
+// 		по итогу мы получаем массив где слева от опорного элемента будут распологаться числа которые меньше,
+//		а справа числа которые больше опорного
+// 5. запускаем рекурсию на левую половину массива (от left до опорного, не включая его)
+// 6. запускаем рекурсию на правую половину массива (от опорного, не включая его до right)
+// 7. сортируем эти половинки, получая опорный элемент и снова запускаем сортировку на левую и правую часть от опорного
+// делаем так до тех пор пока не достигнем базового случая, то есть когда left >= right
+//
 // -- Временная сложность --
-// O(n2) - наихудший случай,
-//		если каждый раз будет выбираться в качестве опорного самый максимальный либо минимальный элемент
-// O(nLog n) - во всех остальных случаях
+// O(n) - так как на каждом стеке вызова функции мы все равно пробегаемся по каждому элементу при сравнениии с опорным
+// O(Log n) - сортировка стека
+// итоговоая сложность алгоритма составляет:
+// O(n) * O(log n) = O(nLog n)
+// https://contest.yandex.ru/contest/23815/run-report/80819625/
 
 // Member - участник соревнований
 type Member struct {
@@ -81,28 +78,70 @@ func (m Member) IsBetter(that Member) bool {
 	return m.login > that.login
 }
 
-// getPivotIndex - возвращает индекс опорного элемента
-// сортирует элементы относительно этого опорного элемента,
+// isMedian - определяем является переданная в функция value медианой для
+// двух других значений
+func isMedian(value, a, b Member) bool {
+	if value.IsBetter(a) && !value.IsBetter(b) {
+		return true
+	}
+
+	return value.IsBetter(b) && !value.IsBetter(a)
+}
+
+// getPivotIndex - выдает индекс медианы значения из переданного массива
+func getPivotIndex(members []Member, left, right int) int {
+	leftV := members[left]
+	rightV := members[right]
+	center := (left + right) / 2
+	centerV := members[center]
+
+	if isMedian(leftV, centerV, rightV) {
+		return left
+	} else if isMedian(rightV, centerV, leftV) {
+		return right
+	}
+
+	return center
+}
+
+// sort - сортирует элементы относительно опорного элемента
 // распологая значения меньше слева,
 // а значения больше справа
-func getPivotIndex(members []Member, left, right int) int {
-	lastIndex := left - 1
-	pivotElement := members[right]
+// возвращает индекс опорного элемента
+func sort(members []Member, left, right int) int {
+	pivotIndex := getPivotIndex(members, left, right)
+	pivot := members[pivotIndex]
+	i := left
 
-	for i := left; i < right; i++ {
-		if pivotElement.IsBetter(members[i]) {
-			lastIndex++
-			members[i], members[lastIndex] = members[lastIndex], members[i]
+	for j := left; j <= right; j++ {
+		if j == pivotIndex { // не смысла сравнивать
+			continue
+		}
+
+		if pivot.IsBetter(members[j]) {
+			if i == pivotIndex {
+				// так как мы сейчас меняем индекс нашего опорного элемента,
+				// нам необходимо запомнить его новое расположение
+				pivotIndex = j
+			}
+
+			members[i], members[j] = members[j], members[i]
+			i++
 		}
 	}
-	members[lastIndex+1], members[right] = members[right], members[lastIndex+1]
-	return lastIndex + 1
+
+	// ставим наш опорный элемент на свое место (по середине)
+	if right-left > 1 && i != pivotIndex {
+		members[i], members[pivotIndex] = members[pivotIndex], members[i]
+	}
+
+	return i
 }
 
 // InPlaceQuickSort - быстрая сортировка без выделения дополнительной памяти
 func InPlaceQuickSort(members []Member, left, right int) {
 	if left < right {
-		pivotIndex := getPivotIndex(members, left, right)
+		pivotIndex := sort(members, left, right)
 		InPlaceQuickSort(members, left, pivotIndex-1)
 		InPlaceQuickSort(members, pivotIndex+1, right)
 	}

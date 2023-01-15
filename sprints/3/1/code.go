@@ -24,6 +24,7 @@ package main
 //
 // -- Временная сложность --
 // O(Log(n) - бинарный поиск
+// O(1) -  сложность по памяти, мы ничего дополнительно не создаем, используем то что имеется
 //
 // https://contest.yandex.ru/contest/23815/run-report/80247542/
 func search(arr []int, left, right, need int) int {

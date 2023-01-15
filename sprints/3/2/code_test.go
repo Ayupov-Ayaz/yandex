@@ -91,3 +91,78 @@ func TestQuickSort(t *testing.T) {
 		})
 	}
 }
+
+func _isMedian(v, a, b int) bool {
+	if v > a && v < b {
+		return true
+	}
+
+	return v < a && v > b
+}
+
+func _getPivotIndex(arr []int, left, right int) int {
+	leftV := arr[left]
+	rightV := arr[right]
+	center := (left + right) / 2
+	centerV := arr[center]
+
+	if _isMedian(leftV, centerV, rightV) {
+		return left
+	} else if _isMedian(rightV, centerV, leftV) {
+		return right
+	}
+
+	return center
+}
+
+func _sort(arr []int, left, right int) int {
+	pivotIndex := _getPivotIndex(arr, left, right)
+	pivot := arr[pivotIndex]
+	i := left
+
+	for j := left; j <= right; j++ {
+		if j == pivotIndex {
+			continue
+		}
+
+		if arr[j] < pivot {
+			if i == pivotIndex {
+				pivotIndex = j
+			}
+
+			arr[i], arr[j] = arr[j], arr[i]
+			i++
+		}
+	}
+
+	// переносим наш опорный элемент на свое место
+	if right-left > 1 && i != pivotIndex {
+		arr[i], arr[pivotIndex] = arr[pivotIndex], arr[i]
+	}
+
+	return i
+}
+
+func _inPlaceQuickSort(arr []int, left, right int) {
+	if left < right {
+		pivotIndex := _sort(arr, left, right)
+		_inPlaceQuickSort(arr, left, pivotIndex-1)
+		_inPlaceQuickSort(arr, pivotIndex+1, right)
+	}
+}
+
+func Test1(t *testing.T) {
+	tests := []struct {
+		arr []int
+	}{
+		{
+			arr: []int{9, 8, 6, 4, 2, 1, 5, 67, 8},
+		},
+	}
+
+	for _, tt := range tests {
+		_inPlaceQuickSort(tt.arr, 0, len(tt.arr)-1)
+
+		require.Equal(t, []int{1, 2, 4, 5, 6, 8, 8, 9, 67}, tt.arr)
+	}
+}
