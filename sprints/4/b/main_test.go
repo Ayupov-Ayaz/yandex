@@ -138,7 +138,8 @@ func TestHashTable_Remove(t *testing.T) {
 			// remove
 
 			checkBefore(t, ht.table)
-			require.True(t, ht.Remove(tt.key))
+			_, ok := ht.Remove(tt.key)
+			require.True(t, ok)
 			tt.checkAfter(t, ht.table)
 		})
 	}
