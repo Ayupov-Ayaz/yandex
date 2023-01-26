@@ -54,7 +54,7 @@ import (
 // -- Расход памяти --
 // O(n) - так как нужно создавать узлы для каждого узла
 //
-// id - https://contest.yandex.ru/contest/24414/run-report/81335072/
+// id - https://contest.yandex.ru/contest/24414/run-report/81376588/
 type node struct {
 	key  int
 	val  int
@@ -92,24 +92,33 @@ func SimpleHashFunc(key, size int) int {
 	return key % size
 }
 
-func (h *HashTable) Add(key, val int) {
-	hashKey := h.hashFunc(key, h.size)
-
-	curr := h.table[hashKey]
-	if curr == nil {
-		h.table[hashKey] = newNode(key, val)
-		return
-	}
-
-	var prev *node
+func (h *HashTable) searchInList(head *node, key int) (curr, prev *node) {
+	curr = head
 	for curr != nil {
 		if curr.key == key {
-			curr.val = val
-			return
+			return curr, prev
 		}
 
 		prev = curr
 		curr = curr.next
+	}
+
+	return nil, prev
+}
+
+func (h *HashTable) Add(key, val int) {
+	hashKey := h.hashFunc(key, h.size)
+
+	head := h.table[hashKey]
+	if head == nil {
+		h.table[hashKey] = newNode(key, val)
+		return
+	}
+
+	curr, prev := h.searchInList(head, key)
+	if curr != nil {
+		curr.val = val
+		return
 	}
 
 	prev.next = newNode(key, val)
@@ -120,40 +129,32 @@ func (h *HashTable) Add(key, val int) {
 func (h *HashTable) Get(key int) (int, bool) {
 	hashKey := h.hashFunc(key, h.size)
 
-	curr := h.table[hashKey]
-	for curr != nil {
-		if curr.key == key {
-			return curr.val, true
-		}
-
-		curr = curr.next
+	head := h.table[hashKey]
+	curr, _ := h.searchInList(head, key)
+	if curr != nil {
+		return curr.val, true
 	}
 
 	return 0, false
 }
 
-func (h *HashTable) Remove(key int) (int, bool) {
+func (h *HashTable) Remove(key int) (val int, removed bool) {
 	hashKey := h.hashFunc(key, h.size)
 
-	curr := h.table[hashKey]
-	if curr != nil && curr.key == key && curr.next == nil {
-		h.table[hashKey] = nil
-		return curr.val, true
-	}
+	head := h.table[hashKey]
+	curr, prev := h.searchInList(head, key)
+	if curr != nil {
+		next := curr.next
 
-	var prev *node
-	for curr != nil {
-		if curr.key == key {
-			if prev == nil {
-				h.table[hashKey] = curr.next
-			} else {
-				prev.next = curr.next
-			}
-			return curr.val, true
+		if next == nil && prev == nil { // head
+			h.table[hashKey] = nil
+		} else if next != nil && prev != nil { // middle
+			prev.next = next
+		} else { // tail
+			prev.next = nil
 		}
-		// >>
-		prev = curr
-		curr = curr.next
+
+		return curr.val, true
 	}
 
 	return 0, false
