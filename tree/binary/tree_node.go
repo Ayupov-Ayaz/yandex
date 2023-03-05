@@ -160,3 +160,99 @@ func (t *TreeNode) LayerOrder() (string, error) {
 
 	return buff.String(), nil
 }
+
+// GetMaxNode - функция для поиска минимального значения для узла
+func (t *TreeNode) GetMaxNode() *TreeNode {
+	curr := t
+	for curr.right != nil {
+		curr = curr.right
+	}
+
+	return curr
+}
+
+// Insert - вставка ключа
+func (t *TreeNode) Insert(value int) {
+	curr := t
+
+	node := NewTreeNode(value)
+	for curr != nil {
+		if curr.value > value {
+			if curr.left == nil {
+				curr.left = node
+				break
+			} else {
+				curr = curr.left
+			}
+		} else {
+			if curr.right == nil {
+				curr.right = node
+				break
+			} else {
+				curr = curr.right
+			}
+		}
+	}
+}
+
+func Delete(root *TreeNode, value int) {
+	curr := root
+
+	var parent *TreeNode
+	for curr != nil && curr.value != value {
+		// обновляем родителя до текущего узла
+		parent = curr
+
+		if curr.value > value {
+			curr = curr.left
+		} else {
+			curr = curr.right
+		}
+	}
+
+	if curr == nil {
+		return
+	}
+
+	// 1. случай первый: удаляемый узел не имеет дочерних элементов
+	if curr.left == nil && curr.right == nil {
+		if parent.left == curr {
+			parent.left = nil
+		} else if parent.right == curr {
+			parent.right = nil
+		} else if curr == root {
+			root = nil
+		}
+
+		return
+	}
+
+	// 2. Удаляемый узел имеет двух потомков
+	if curr.left != nil && curr.right != nil {
+		minValue := curr.left.GetMaxNode().value
+		// рекурсивно удаляем приемника
+		Delete(curr, minValue)
+		// копируем значение приемника в текущий узел
+		curr.value = minValue
+		return
+	}
+
+	// 3. Удаляемый узел имеет только одного потомка
+	var child *TreeNode
+	if curr.left != nil {
+		child = curr.left
+	} else {
+		child = curr.right
+	}
+
+	// если удаляемый узел не является корневым узлом, устанавливаем его родителя своему потомку
+	if curr != root {
+		if curr == parent.left {
+			parent.left = child
+		} else {
+			parent.right = child
+		}
+	} else {
+		root = child
+	}
+}
