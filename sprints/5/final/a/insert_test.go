@@ -27,7 +27,7 @@ func TestInsert(t *testing.T) {
 		}
 	}
 
-	got := root.RightOrder()
+	got := root.RightToLeftOrder()
 	const exp = "gena\ntimofey\nalla\ngosha\nrita"
 	require.Equal(t, exp, got)
 }
