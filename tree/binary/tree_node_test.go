@@ -183,3 +183,8 @@ func Test_DeleteRoot(t *testing.T) {
 	require.Equal(t, 1, root.left.left.value)
 	require.Equal(t, 3, root.left.right.value)
 }
+
+func Test_DeleteRoot1(t *testing.T) {
+	root := NewTreeNode(1)
+	Delete(root, 1)
+}

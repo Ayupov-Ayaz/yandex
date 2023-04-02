@@ -216,9 +216,9 @@ func Delete(root *TreeNode, value int) {
 
 	// 1. случай первый: удаляемый узел не имеет дочерних элементов
 	if curr.left == nil && curr.right == nil {
-		if parent.left == curr {
+		if parent != nil && parent.left == curr {
 			parent.left = nil
-		} else if parent.right == curr {
+		} else if parent != nil && parent.right == curr {
 			parent.right = nil
 		} else if curr == root {
 			root = nil
@@ -229,11 +229,11 @@ func Delete(root *TreeNode, value int) {
 
 	// 2. Удаляемый узел имеет двух потомков
 	if curr.left != nil && curr.right != nil {
-		minValue := curr.left.GetMaxNode().value
+		maxLeftValue := curr.left.GetMaxNode().value
 		// рекурсивно удаляем приемника
-		Delete(curr, minValue)
+		Delete(curr, maxLeftValue)
 		// копируем значение приемника в текущий узел
-		curr.value = minValue
+		curr.value = maxLeftValue
 		return
 	}
 
