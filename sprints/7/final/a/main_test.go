@@ -18,6 +18,11 @@ func TestCalculateLevenshteinDistance(t *testing.T) {
 			t:   "jdpmykgmaitn",
 			exp: 8,
 		},
+		{
+			s:   "dkuqhkufqs",
+			t:   "dvihfkuxs",
+			exp: 6,
+		},
 	}
 
 	for _, test := range tests {
