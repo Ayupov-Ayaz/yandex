@@ -22,7 +22,7 @@ import (
 // Если dp[i] == 0, то не существует элементов с суммой i.
 // Для каждого элемента массива суммируются все элементы, которые меньше него.
 // Для этого используется массив dpPrev, где dpPrev[i] - количество элементов с суммой i.
-// https://contest.yandex.ru/contest/25597/run-report/85471471/
+// https://contest.yandex.ru/contest/25597/run-report/85666858/
 // O(n*m/2), где n - количество элементов, а m - сумма всех элементов в массиве.
 const (
 	SUCCESS = "True"
@@ -52,8 +52,7 @@ func CheckSum(n, sum int, data []int) bool {
 				dp[g]++
 			}
 		}
-		dpPrev = dp
-		dp = make([]int, sum/2+1)
+		dp, dpPrev = dpPrev, dp
 	}
 
 	return dpPrev[sum/2] > 1
