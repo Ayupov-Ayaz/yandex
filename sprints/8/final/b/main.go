@@ -31,7 +31,8 @@ import (
 // 3. Считываем строку t
 // 4. Ищем строку t в префиксных деревьях
 // 5. Выводим результат
-// https://contest.yandex.ru/contest/26133/run-report/85798831/
+// https://contest.yandex.ru/contest/26133/run-report/85821528/
+
 const (
 	SUCCESS = "YES"
 	FAIL    = "NO"
@@ -44,7 +45,7 @@ type Node struct {
 
 type PrefixMap map[string]*Node
 
-type DP [][]*Node
+type DP []*Node
 
 func main() {
 	s := strings.Builder{}
@@ -61,24 +62,24 @@ func Solution(t string, rootNode *Node, s *strings.Builder) {
 		return
 	}
 
-	dp := make(DP, len(t))
-	dp[0] = append(dp[0], rootNode.tree[string(t[0])])
+	dp := make(DP, 1)
+	dp[0] = rootNode.tree[string(t[0])]
 
 	for i := 1; i < len(t); i++ {
 		c := string(t[i])
 		var isSomeBlack bool
-		dp[i], isSomeBlack = findNodes(dp[i-1], c)
+		dp, isSomeBlack = findNodes(dp, c)
 
 		if isSomeBlack && rootNode.tree[c] != nil {
-			dp[i] = append(dp[i], rootNode.tree[c])
+			dp = append(dp, rootNode.tree[c])
 		}
 
-		if len(dp[i]) == 0 {
+		if len(dp) == 0 {
 			break
 		}
 	}
 
-	for _, v := range dp[len(t)-1] {
+	for _, v := range dp {
 		if v.isBlack {
 			s.WriteString(SUCCESS)
 			return
@@ -89,8 +90,8 @@ func Solution(t string, rootNode *Node, s *strings.Builder) {
 }
 
 // findNodes поиск ноды по символу
-func findNodes(n []*Node, char string) ([]*Node, bool) {
-	var res []*Node
+func findNodes(n DP, char string) (DP, bool) {
+	var res DP
 	var isBlack bool
 
 	for _, v := range n {
